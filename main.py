@@ -4,15 +4,14 @@ import imutils
 from imutils.object_detection import non_max_suppression
 
 
-subject_label = 1
+
 font = cv2.FONT_HERSHEY_SIMPLEX
-list_of_videos = []
 cascade_path = "face_cascades/haarcascade_profileface.xml"
 face_cascade = cv2.CascadeClassifier(cascade_path)
 hog = cv2.HOGDescriptor()
 hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 recognizer = cv2.face.LBPHFaceRecognizer_create()
-count=0
+count = 0
 
 def detect_people(frame):
 	"""
@@ -60,21 +59,6 @@ def draw_faces(frame, faces):
 	return frame
 
 
-def put_label_on_face(frame, faces, labels):
-	"""
-	draw label on faces
-	Args:
-		frame:
-		faces:
-		labels:
-	Returns:
-		processed frame
-	"""
-	i = 0
-	for x, y, w, h in faces:
-		cv2.putText(frame, str(labels[i]), (x, y), font, 1, (255, 255, 255), 2)
-		i += 1
-	return frame
 
 def background_subtraction(previous_frame, frame_resized_grayscale, min_area):
 	"""
@@ -106,12 +90,12 @@ if __name__ == '__main__':
 	camera = cv2.VideoCapture(0)
 	time.sleep(0.25)
 	grabbed, frame = camera.read()
-	print(frame.shape)
+	#print(frame)
 	frame_resized = imutils.resize(frame, width=min(800, frame.shape[1]))
 	frame_resized_grayscale = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2GRAY)
 	print(frame_resized.shape)
 
-	# defining min cuoff area
+	#defining min cut off area
 	min_area = (3000 / 800) * frame_resized.shape[1]
 
 	while True:
@@ -125,6 +109,7 @@ if __name__ == '__main__':
 		temp = background_subtraction(previous_frame, frame_resized_grayscale, min_area)
 		if temp == 1:
 			frame_processed = detect_people(frame_resized)
+			print(len(frame_processed))
 			faces = detect_face(frame_resized_grayscale)
 			if len(faces) > 0:
 				frame_processed = draw_faces(frame_processed, faces)
